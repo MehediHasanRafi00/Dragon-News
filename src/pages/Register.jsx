@@ -1,13 +1,15 @@
 import React, { use, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../Provider/AuthProvider";
 
 const Register = () => {
-  const { createUser, setUser } = use(AuthContext);
+  const { createUser, setUser, UpdateUser } = use(AuthContext);
   const [nameError, setNameError] = useState("");
+
+  const navigate= useNavigate()
   const handleRegister = (e) => {
     e.preventDefault();
-    console.log(e.targe);
+    // console.log(e.targe);
     const form = e.target;
     const name = form.name.value;
     if (name.length < 5) {
@@ -19,12 +21,20 @@ const Register = () => {
     const photo = form.photo.value;
     const email = form.email.value;
     const password = form.password.value;
-    console.log({ name, photo, email, password });
-    createUser(name, password)
+    // console.log({ name, photo, email, password });
+    createUser(email, password)
       .then((res) => {
         const user = res.user;
         // console.log(user);
-        setUser(user);
+        UpdateUser({ displayName: name, photoURL: photo })
+          .then(() => {
+            setUser({...user,displayName: name, photoURL: photo});
+            navigate('/')
+          })
+          .catch((e) => {
+            console.log(e);
+            setUser(user)
+          });
       })
       .catch((e) => {
         // const errorCode = e.code;
@@ -48,7 +58,7 @@ const Register = () => {
               placeholder="Enter your name"
               required
             />
-            {nameError&& <p className="text-xs text-error">{nameError}</p>}
+            {nameError && <p className="text-xs text-error">{nameError}</p>}
             <label className="label">Photo URL</label>
             <input
               name="photo"
