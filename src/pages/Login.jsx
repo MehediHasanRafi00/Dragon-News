@@ -1,9 +1,13 @@
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../Provider/AuthProvider";
-import { use } from "react";
+import { use, useState } from "react";
 
 const Login = () => {
-  const { logIn, setUser } = use(AuthContext);
+  const [error, setError] = useState("");
+  const { logIn } = use(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  console.log(location);
   const handleLogin = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -13,12 +17,15 @@ const Login = () => {
     logIn(email, password)
       .then((res) => {
         const user = res.user;
-        setUser(user);
+        console.log(user);
+        // setUser(user);
+        navigate(`${location.state ? location.state : "/"}`);
       })
       .catch((e) => {
         const errorCode = e.code;
-        const errorMessage = e.message;
-        alert(errorCode,errorMessage)
+        // const errorMessage = e.message;
+        // alert(errorCode, errorMessage);
+        setError(errorCode);
       });
   };
   return (
@@ -35,6 +42,7 @@ const Login = () => {
               type="email"
               className="input"
               placeholder="Enter your Email"
+              required
             />
             <label className="label">Password</label>
             <input
@@ -42,10 +50,15 @@ const Login = () => {
               type="password"
               className="input"
               placeholder="Enter your Password"
+              required
             />
             <div>
               <a className="link link-hover">Forgot password?</a>
             </div>
+
+            {
+              error&& <p className="text-red-400 text-xs">{error}</p>
+            }
             <button className="btn btn-neutral mt-4">Login</button>
             <p className="font-semi name='email'bold text-center mt-4">
               Dont’t Have An Account ?{" "}
