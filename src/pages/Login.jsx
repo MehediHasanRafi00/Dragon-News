@@ -1,10 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../Provider/AuthProvider";
-import { use, useState } from "react";
+import { use, useRef, useState } from "react";
 
 const Login = () => {
   const [error, setError] = useState("");
-  const { logIn } = use(AuthContext);
+
+  const emailRef = useRef();
+  const { logIn, forgetPassword } = use(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   // console.log(location);
@@ -13,7 +15,7 @@ const Login = () => {
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    console.log(email, password);
+    // console.log(email, password);
     logIn(email, password)
       .then((res) => {
         const user = res.user;
@@ -28,6 +30,19 @@ const Login = () => {
         setError(errorCode);
       });
   };
+
+  const handleForgotPass = () => {
+    const email = emailRef.current.value;
+    forgetPassword(email)
+      .then(() => {
+        alert("Password reset email sent!");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        // const errorMessage = error.message;
+        setError(errorCode);
+      });
+  };
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl py-8">
@@ -38,6 +53,7 @@ const Login = () => {
           <fieldset className="fieldset">
             <label className="label">Email</label>
             <input
+              ref={emailRef}
               name="email"
               type="email"
               className="input"
@@ -53,15 +69,15 @@ const Login = () => {
               required
             />
             <div>
-              <a className="link link-hover">Forgot password?</a>
+              <a onClick={handleForgotPass} className="link link-hover">
+                Forgot password?
+              </a>
             </div>
 
-            {
-              error&& <p className="text-red-400 text-xs">{error}</p>
-            }
+            {error && <p className="text-red-400 text-xs">{error}</p>}
             <button className="btn btn-neutral mt-4">Login</button>
             <p className="font-semi name='email'bold text-center mt-4">
-              Dont’t Have An Account ?{" "}
+              Don't Have An Account ?
               <Link className="text-secondary" to={"/auth/register"}>
                 Register
               </Link>
